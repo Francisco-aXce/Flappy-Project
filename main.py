@@ -18,20 +18,30 @@ def create_pipe():
 
 def draw_pipes():
     for pipe in pipe_list:
-        if pipe.midbottom[1] > SCREEN_SIZE[0]:
-            screen.blit(pipe_sf, pipe.center)
+        if pipe.bottom > SCREEN_SIZE[1]:
+            screen.blit(pipe_sf, pipe.topleft)
         else:
-            screen.blit(fpipe_sf, pipe.center)
+            screen.blit(fpipe_sf, pipe.topleft)
 
 
 def move_pipes():
     for pipe in pipe_list:
         pipe.centerx -= pipe_speed
 
+
 def delete_pipes():
     if len(pipe_list) > 8:
         pipe_list.pop(0)
         pipe_list.pop(1)
+
+
+def check_collisions():
+    for pipe in pipe_list:
+        if pipe.colliderect(bird_rect):
+            print("Collision")
+    
+    if bird_rect.top <= 0 or bird_rect.bottom >= 450:
+        print("Limit")
 
 pygame.init()
 SCREEN_SIZE = (288,512)
@@ -47,7 +57,7 @@ pipe_list = []
 SPAWNPIPE = pygame.USEREVENT
 pygame.time.set_timer(SPAWNPIPE, 1200)
 pipe_speed = 2
-pipe_pos = (50, 150, 250)
+pipe_pos = (200, 300, 400)
 
 background_sf = pygame.image.load("sprites/background-day.png").convert()
 
@@ -80,10 +90,13 @@ while True:
     bird_movement += gravity
     bird_rect.centery += round(bird_movement)
     screen.blit(bird_sf, bird_rect.center)
+    check_collisions()
 
     # Pipes
     draw_pipes()
     move_pipes()
+    for pipe in pipe_list:
+        pygame.draw.rect(screen, (0,0,0), pipe)
 
     # Floor
     draw_floor()
